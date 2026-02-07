@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oregon Supervisor Electrician Exam - Flashcard Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #0f1b4d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.flipped .card-front {
+            display: none;
+        }
+
+        .card.flipped .card-back {
+            display: flex;
+        }
+
+        .card-front, .card-back {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .card-back {
+            display: none;
+        }
+
+        .category-badge {
+            background: #2a4a9c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .flip-hint {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-easy {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-medium {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-hard {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-next {
+            background: #4299e1;
+            color: white;
+            padding: 15px 50px;
+        }
+
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: #48bb78;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .filter-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #1a2a6c;
+        }
+
+        .completion-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            display: none;
+        }
+
+        .completion-screen.show {
+            display: block;
+        }
+
+        .completion-screen h2 {
+            font-size: 2.5rem;
+            color: #2a4a9c;
+            margin-bottom: 20px;
+        }
+
+        .completion-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .completion-stat {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .completion-stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2a4a9c;
+        }
+
+        .completion-stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+                min-height: 350px;
+            }
+
+            .card-content {
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .feedback-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            padding: 25px 40px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+        }
+
+        .feedback-message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @media (max-width: 600px) {
+            .feedback-message {
+                font-size: 1.2rem;
+                padding: 20px 30px;
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Oregon Supervisor Electrician Exam</h1>
+            <p>Interactive Flashcard Study Game</p>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span id="cardCounter">1 / 30</span>
+            </div>
+            <div class="stat">
+                Easy: <span id="easyCount">0</span>
+            </div>
+            <div class="stat">
+                Medium: <span id="mediumCount">0</span>
+            </div>
+            <div class="stat">
+                Hard: <span id="hardCount">0</span>
+            </div>
+        </div>
+
+        <div class="filter-controls">
+            <button class="filter-btn active" onclick="filterCategory('all')">All Topics</button>
+            <button class="filter-btn" onclick="filterCategory('NEC 220')">NEC 220</button>
+            <button class="filter-btn" onclick="filterCategory('Motors')">Motors</button>
+            <button class="filter-btn" onclick="filterCategory('Load Calc')">Load Calc</button>
+            <button class="filter-btn" onclick="filterCategory('Oregon Code')">Oregon Code</button>
+            <button class="filter-btn" onclick="filterCategory('General')">General</button>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="flashcard" onclick="flipCard()">
+                <div class="card-front">
+                    <div class="category-badge" id="categoryBadge"></div>
+                    <div class="card-content" id="question"></div>
+                    <div class="flip-hint">Click to reveal answer</div>
+                </div>
+                <div class="card-back">
+                    <div class="category-badge" id="categoryBadgeBack"></div>
+                    <div class="card-content" id="answer"></div>
+                    <div class="flip-hint">Click to hide answer</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn btn-hard" onclick="rateCard('hard')">😰 Need Review</button>
+            <button class="btn btn-medium" onclick="rateCard('medium')">🤔 Getting It</button>
+            <button class="btn btn-easy" onclick="rateCard('easy')">😎 Know It!</button>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <h2>🎉 Study Session Complete!</h2>
+            <p style="font-size: 1.2rem; color: #666; margin: 20px 0;">Great work! You've reviewed all the cards.</p>
+            
+            <div class="completion-stats">
+                <div class="completion-stat">
+                    <div class="completion-stat-number" id="finalEasy">0</div>
+                    <div class="completion-stat-label">Easy Cards</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="completion-stat-number" id="finalMedium">0</div>
+                    <div class="completion-stat-label">Medium Cards</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="completion-stat-number" id="finalHard">0</div>
+                    <div class="completion-stat-label">Need Review</div>
+                </div>
+            </div>
+
+            <button class="btn btn-next" onclick="restartSession()" style="margin-top: 20px;">Start New Session</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            // NEC Article 220 - Load Calculations
+            {
+                category: "NEC 220",
+                question: "What is the general lighting load for commercial buildings per NEC 220.12?",
+                answer: "1 VA per square foot for banks and office buildings. 2 VA per square foot for hotels, hospitals, schools. 3.5 VA per square foot for warehouses. Always check Table 220.12."
+            },
+            {
+                category: "NEC 220",
+                question: "What percentage must you add for continuous loads in service calculations?",
+                answer: "125% (1.25 multiplier). Continuous loads operate for 3 hours or more. This applies to commercial lighting unless stated otherwise."
+            },
+            {
+                category: "NEC 220",
+                question: "How do you calculate the demand factor for electric ranges per Table 220.55?",
+                answer: "For 1-2 ranges: 100% of nameplate rating. For more ranges, use Column C (demand factors). Example: 5 ranges = 20kW demand. Must know this table!"
+            },
+            {
+                category: "NEC 220",
+                question: "What is the demand factor for 10 or fewer general-use receptacles in non-dwelling units?",
+                answer: "100% of the first 10 kVA, plus 50% of the remainder. Each receptacle outlet = 180 VA."
+            },
+            {
+                category: "NEC 220",
+                question: "How do you calculate the neutral load for electric ranges per 220.61?",
+                answer: "70% of the unbalanced load on the line conductors. For ranges, use 70% of the demand load from Table 220.55."
+            },
+
+            // Motors
+            {
+                category: "Motors",
+                question: "What percentage of the largest motor must be added to total motor load calculations?",
+                answer: "125% (25% additional) of the full-load current of the largest motor. This is per NEC 430.24."
+            },
+            {
+                category: "Motors",
+                question: "Where do you find motor full-load current values?",
+                answer: "Tables 430.247, 430.248, 430.249, and 430.250 in NEC. DO NOT use nameplate values for these calculations."
+            },
+            {
+                category: "Motors",
+                question: "How do you size conductors for a single motor?",
+                answer: "Minimum 125% of the motor's full-load current rating per NEC 430.22. Use Table values, not nameplate."
+            },
+            {
+                category: "Motors",
+                question: "What is the general rule for air conditioning unit calculations?",
+                answer: "Treat as the largest motor load. Use 125% of the nameplate rating. Do not combine with heating unless both run simultaneously."
+            },
+
+            // Load Calculations - Commercial/Industrial
+            {
+                category: "Load Calc",
+                question: "How do you calculate sign circuit loads per NEC 220.14(F)?",
+                answer: "Each commercial building outlet for signs = minimum 1,200 VA. This is a continuous load, so multiply by 125% for final calculation."
+            },
+            {
+                category: "Load Calc",
+                question: "What must you include for show window lighting per NEC 220.14(G)?",
+                answer: "Minimum 200 VA per linear foot of show window. This is typically a continuous load."
+            },
+            {
+                category: "Load Calc",
+                question: "How do you calculate loads for fixed electric space heating per NEC 220.51?",
+                answer: "Use 100% of the total connected load. No demand factors allowed for fixed electric heating in NEC calculations."
+            },
+            {
+                category: "Load Calc",
+                question: "For a mixed-use building with office, warehouse, and storage, how do you calculate lighting?",
+                answer: "Calculate each area separately using Table 220.12. Office = 1 VA/sq ft, Warehouse = 0.25 VA/sq ft (low bay), Storage = 0.25 VA/sq ft. Add all together."
+            },
+            {
+                category: "Load Calc",
+                question: "How do you calculate multifamily dwelling feeders?",
+                answer: "Use Table 220.84 for optional calculation method, OR standard method with demand factors from 220.42. Include all fixed appliances, lighting (3 VA/sq ft), and small appliance/laundry circuits."
+            },
+
+            // Oregon-Specific Code
+            {
+                category: "Oregon Code",
+                question: "What is the Oregon Electrical Specialty Code (OESC)?",
+                answer: "Oregon's amendments to the NEC. Located in OAR Division 305. Contains exclusions, additions, and modifications to NEC requirements. Critical for Part 1 of exam."
+            },
+            {
+                category: "Oregon Code",
+                question: "What reference is Table 1E in the Oregon code used for?",
+                answer: "Table 1E lists Oregon's exclusions and additions to the NEC. It's in OAR 918-305. Know these modifications - they appear frequently on the exam."
+            },
+            {
+                category: "Oregon Code",
+                question: "How many hours of experience are required for a Restricted Energy Technician license in Oregon?",
+                answer: "2,000 hours (1 year) of on-the-job training in limited energy systems. This is an Oregon-specific license question."
+            },
+            {
+                category: "Oregon Code",
+                question: "What are Oregon's continuing education requirements for Supervisor license renewal?",
+                answer: "24 hours total every 3 years: 8 hours code changes, 4 hours rule & law, 12 hours additional code-related or general (CR or CC)."
+            },
+
+            // General NEC Knowledge
+            {
+                category: "General",
+                question: "What value do you use for √3 in three-phase calculations?",
+                answer: "1.732 - Use this exact value in calculations. Do NOT round until the final answer. Critical for accuracy on calculation questions."
+            },
+            {
+                category: "General",
+                question: "What is the basic formula for calculating three-phase power?",
+                answer: "P = √3 × V × I × PF, where P = power (watts), V = voltage (line-to-line), I = current, PF = power factor (use 1.0 if not given)."
+            },
+            {
+                category: "General",
+                question: "How do you calculate voltage drop for a single-phase circuit?",
+                answer: "VD = (2 × K × I × L) / CM, where K = 12.9 for copper, I = current, L = one-way length, CM = circular mils. Result is in volts."
+            },
+            {
+                category: "General",
+                question: "What is the maximum voltage drop recommended by NEC for branch circuits and feeders combined?",
+                answer: "5% total (3% for feeders + 2% for branch circuits is recommended, but not required). NEC 210.19(A) FPN and 215.2(A) FPN."
+            },
+            {
+                category: "General",
+                question: "What are the standard voltage ratings for electrical systems in the NEC?",
+                answer: "120V, 120/240V, 208Y/120V, 240V, 480Y/277V, 480V. Know these for calculation questions - they appear in scenario problems."
+            },
+
+            // Solar/PV Systems
+            {
+                category: "General",
+                question: "What NEC article covers solar photovoltaic (PV) systems?",
+                answer: "Article 690 - Solar Photovoltaic (PV) Systems. This includes installation requirements, wiring methods, disconnects, and grounding."
+            },
+            {
+                category: "General",
+                question: "What is the general maximum voltage for PV source circuits in residential applications?",
+                answer: "600V for one- and two-family dwellings per NEC 690.7. Higher voltages allowed for other occupancies with restrictions."
+            },
+            {
+                category: "General",
+                question: "How far can a Limited Renewable Energy Technician connect PV panels?",
+                answer: "From the PV array to the inverter, disconnect, and service equipment. This is an Oregon-specific license scope question that appears on exams."
+            },
+
+            // Code Book Navigation
+            {
+                category: "General",
+                question: "Where in the NEC do you find conductor ampacity tables?",
+                answer: "Table 310.16 (formerly 310.15(B)(16)). Know your code book tabs! Speed is critical - you have limited time per question."
+            },
+            {
+                category: "General",
+                question: "What is the purpose of NEC Chapter 9 Tables?",
+                answer: "Contains calculation tables: conductor properties (Table 8), raceway fill (Tables 1, 4, 5), conduit dimensions, and resistance/reactance values."
+            },
+            {
+                category: "General",
+                question: "What calculation resources are permitted in the Oregon Supervisor exam?",
+                answer: "NEC Code Book (tabbed/highlighted allowed), NEC Handbook, Oregon Electrical Specialty Code, Oregon Rules & Laws, calculator. Tom Henry Key Word Index highly recommended."
+            },
+
+            // Test Strategy
+            {
+                category: "General",
+                question: "What is the pass rate requirement for BOTH parts of the Oregon Supervisor exam?",
+                answer: "75% on BOTH parts in the same sitting. Part 1: 39/52 questions correct. Part 2: 9/12 calculations correct. Fail either part = retake both."
+            },
+            {
+                category: "General",
+                question: "What is a critical strategy for the 12-question calculation section?",
+                answer: "DON'T get stuck! If a calculation takes >15 mins, mark your best answer and move on. The questions are often interconnected (7-8 related questions), so one wrong answer can cascade."
+            },
+            {
+                category: "General",
+                question: "What are the most commonly tested calculation topics on the Oregon Supervisor exam?",
+                answer: "Mixed-use commercial/industrial loads, sign circuits, multifamily dwellings, motor loads with 125% largest motor, service/feeder sizing, and neutral calculations."
+            },
+
+            // Additional NEC 220 Questions
+            {
+                category: "NEC 220",
+                question: "What is the dwelling unit lighting load per NEC 220.12?",
+                answer: "3 VA per square foot for dwelling units. This is calculated based on the outside dimensions of the dwelling, not including open porches, garages, or unused spaces."
+            },
+            {
+                category: "NEC 220",
+                question: "How many small appliance circuits are required in a dwelling, and what load do they represent?",
+                answer: "Minimum 2 small appliance circuits required. Each counts as 1,500 VA. Total minimum = 3,000 VA for load calculations (2 kitchen + 1 laundry)."
+            },
+            {
+                category: "NEC 220",
+                question: "What is the demand factor for dwelling unit general lighting loads over 3,000 VA?",
+                answer: "First 3,000 VA at 100%, next 117,000 VA at 35%, remainder at 25%. Use Table 220.42 for standard method or Table 220.84 for optional calculation."
+            },
+            {
+                category: "NEC 220",
+                question: "How do you calculate the load for a household electric dryer?",
+                answer: "Use 5,000 VA or nameplate rating (whichever is larger) for ONE dryer. For multiple dryers, apply demand factors from Table 220.54."
+            },
+            {
+                category: "NEC 220",
+                question: "What is the load calculation for fixed outdoor electric deicing and snow-melting equipment?",
+                answer: "100% of the total connected load per NEC 426.4. No demand factors apply - must calculate at full load."
+            },
+            {
+                category: "NEC 220",
+                question: "How do you handle non-coincident loads in service calculations?",
+                answer: "You can omit the smaller of two non-coincident loads (loads that will never operate simultaneously), such as heating vs. air conditioning. Document your assumption."
+            },
+
+            // More Motor Questions
+            {
+                category: "Motors",
+                question: "What is the minimum branch circuit conductor size for a 10 HP, 230V, 3-phase motor?",
+                answer: "From Table 430.250: 10 HP = 28A full-load current. Conductors must be 125% × 28A = 35A minimum. Use wire rated for at least 35A."
+            },
+            {
+                category: "Motors",
+                question: "How do you size the overload protection for a motor?",
+                answer: "Typically 115-125% of motor full-load current for motors with service factor ≥1.15. Use 125% for all other motors. See NEC 430.32."
+            },
+            {
+                category: "Motors",
+                question: "What is the maximum rating for motor branch circuit short-circuit protection (fuses)?",
+                answer: "For inverse time breakers: 250% of motor FLC. For fuses: 175% of motor FLC. Can go to 400% (breakers) or 225% (fuses) if standard sizes don't work. Table 430.52."
+            },
+            {
+                category: "Motors",
+                question: "When calculating a feeder for multiple motors, what must you include?",
+                answer: "Sum of all motor full-load currents PLUS 25% of the largest motor. Don't forget to add any other loads on the same feeder."
+            },
+            {
+                category: "Motors",
+                question: "What is the locked-rotor current, and why does it matter?",
+                answer: "Current when motor starts (before rotating). Can be 6-8 times normal running current. Determines starting equipment sizing and voltage drop during starts. Use Table 430.251."
+            },
+
+            // Additional Load Calculation Questions
+            {
+                category: "Load Calc",
+                question: "How do you calculate receptacle loads in commercial buildings?",
+                answer: "Each receptacle = 180 VA. Apply 100% to first 10 kVA, then 50% to remainder per NEC 220.14(I) and 220.44."
+            },
+            {
+                category: "Load Calc",
+                question: "What is the load for fixed multioutlet assemblies in commercial spaces?",
+                answer: "If unlikely to be used simultaneously: 180 VA per outlet. If likely to be used simultaneously: 180 VA per 5 feet or fraction thereof. See NEC 220.14(H)."
+            },
+            {
+                category: "Load Calc",
+                question: "How do you calculate loads for commercial kitchen equipment?",
+                answer: "Use nameplate ratings for all equipment. Apply demand factors from Table 220.56 ONLY if there are 3+ pieces of commercial cooking equipment. Otherwise 100%."
+            },
+            {
+                category: "Load Calc",
+                question: "What demand factors apply to household cooking appliances (ranges, ovens, cooktops)?",
+                answer: "Depends on number of units. Use Column C of Table 220.55. Example: 1 range = 8kW demand, 5 ranges = 20kW total demand, 10 ranges = 25kW demand."
+            },
+            {
+                category: "Load Calc",
+                question: "How do you size a neutral conductor for a dwelling service?",
+                answer: "Calculate unbalanced load: lighting at full, ranges/dryers at 70%, 200A+ services can apply additional demand per 220.61. Minimum size per 310.12."
+            },
+            {
+                category: "Load Calc",
+                question: "What is the minimum service size for a single-family dwelling?",
+                answer: "100 amperes, 3-wire per NEC 230.79. However, most modern homes require 150-200A services based on load calculations."
+            },
+
+            // Oregon Code - Expanded
+            {
+                category: "Oregon Code",
+                question: "What is the experience requirement to qualify for the Oregon Supervisor exam?",
+                answer: "8,000 hours (4 years) as a licensed Journeyman PLUS 1,000 hours EACH in residential, commercial, AND industrial work. Must document all hours."
+            },
+            {
+                category: "Oregon Code",
+                question: "Can an Oregon Limited Supervising Electrician work on residential projects?",
+                answer: "No. Limited Supervising Electrician (Plant) can only work in industrial/commercial settings, NOT residential. General Supervising can do all."
+            },
+            {
+                category: "Oregon Code",
+                question: "Who can sign electrical permits in Oregon?",
+                answer: "Only a General Supervising Electrician or a Licensed Electrical Contractor with a Supervising Electrician on staff can sign permits."
+            },
+            {
+                category: "Oregon Code",
+                question: "What states have reciprocity with Oregon for Supervisor licenses?",
+                answer: "Arkansas and Utah for General Supervising Electrician. Washington has reciprocity for Journeyman only, NOT Supervisor."
+            },
+            {
+                category: "Oregon Code",
+                question: "What is Oregon's bond requirement for electrical contractors?",
+                answer: "Must post a bond with Oregon Construction Contractors Board (CCB). Amount varies by contract size. Also need general liability and workers' comp insurance."
+            },
+
+            // Grounding & Bonding
+            {
+                category: "General",
+                question: "What NEC article covers grounding and bonding?",
+                answer: "Article 250. Critical for safety - covers grounded conductors, grounding electrode systems, equipment grounding, and bonding. Heavily tested topic."
+            },
+            {
+                category: "General",
+                question: "What is the minimum size for a grounding electrode conductor for a 200A service?",
+                answer: "Use Table 250.66. For service with 2/0 AWG or smaller conductors = #6 copper minimum. For larger services, use the table."
+            },
+            {
+                category: "General",
+                question: "What types of grounding electrodes are recognized by the NEC?",
+                answer: "Metal underground water pipe (10+ ft), concrete-encased electrode (rebar), ground ring, rod/pipe electrodes, plate electrodes, other local metal underground systems. See 250.52."
+            },
+            {
+                category: "General",
+                question: "What is the difference between grounding and bonding?",
+                answer: "Grounding = connection to earth for fault current path. Bonding = connecting metal parts together for electrical continuity and equipotential. Both required for safety."
+            },
+            {
+                category: "General",
+                question: "When is an equipment grounding conductor required?",
+                answer: "Almost always for safety. Required for all 15A and 20A receptacles, metal raceways, equipment, and anywhere safety is a concern. Exceptions are rare - know Article 250."
+            },
+
+            // Wiring Methods
+            {
+                category: "General",
+                question: "What is the maximum number of current-carrying conductors allowed in a raceway before derating?",
+                answer: "Three or fewer = no derating. Four or more = apply adjustment factors from Table 310.15(C)(1): 4-6 conductors = 80%, 7-9 = 70%, 10-20 = 50%."
+            },
+            {
+                category: "General",
+                question: "What is the minimum burial depth for rigid metal conduit (RMC)?",
+                answer: "6 inches minimum per Table 300.5. PVC is 18 inches (24\" under streets). Direct burial cable varies by type. Know Table 300.5 - commonly tested!"
+            },
+            {
+                category: "General",
+                question: "What is the maximum distance between supports for EMT (electrical metallic tubing)?",
+                answer: "10 feet maximum between supports. Must be secured within 3 feet of boxes, cabinets, or terminations per NEC 358.30."
+            },
+            {
+                category: "General",
+                question: "How do you calculate conduit fill percentage limits?",
+                answer: "1 conductor = 53%, 2 conductors = 31%, 3+ conductors = 40% of conduit cross-sectional area. Use Chapter 9 Tables 4, 5, and 8 for calculations."
+            },
+            {
+                category: "General",
+                question: "What is the minimum bending radius for conductors in raceways?",
+                answer: "Depends on conductor size. Generally: #4 AWG and larger = 8 times the diameter for single bend, 6 times for saddle bends. See Table 312.6(A)."
+            },
+
+            // Transformer Questions
+            {
+                category: "General",
+                question: "What is the basic formula for transformer primary current?",
+                answer: "I(primary) = (kVA × 1000) / (V(primary) × √3) for 3-phase. For single-phase: I = (kVA × 1000) / V. Critical for sizing feeders and protection."
+            },
+            {
+                category: "General",
+                question: "How do you size overcurrent protection for a transformer primary?",
+                answer: "Depends on primary current. ≤9A: 167%, >9A and <2A secondary: 125%, ≥2A secondary: 125% (primary) and 125% (secondary). See NEC 450.3."
+            },
+            {
+                category: "General",
+                question: "What is a separately derived system?",
+                answer: "A system where power is derived from a transformer, generator, or converter with no direct electrical connection to supply conductors. Requires grounding electrode and bonding per 250.30."
+            },
+            {
+                category: "General",
+                question: "What NEC article covers transformers?",
+                answer: "Article 450. Covers installation requirements, ventilation, overcurrent protection, grounding, and various transformer types."
+            },
+
+            // Box Fill & Enclosures
+            {
+                category: "General",
+                question: "How do you calculate box fill per NEC 314.16?",
+                answer: "Count: conductors (1 each), clamps (1 total), devices (2 each), equipment grounds (1 total), fixture studs (1 total). Multiply by conductor volume from Table 314.16(B)."
+            },
+            {
+                category: "General",
+                question: "What is the volume allowance for a #12 AWG conductor in box fill calculations?",
+                answer: "2.25 cubic inches per #12 conductor. #14 = 2.0 in³, #10 = 2.5 in³, #8 = 3.0 in³. Use Table 314.16(B)."
+            },
+            {
+                category: "General",
+                question: "How many #12 conductors can fit in a standard 4×4×1½\" metal box?",
+                answer: "Standard 4×4×1½\" box = 21 cubic inches. #12 = 2.25 in³ each. 21 ÷ 2.25 = 9 conductors maximum (before accounting for devices, clamps, grounds)."
+            },
+
+            // Commercial/Industrial Special Topics
+            {
+                category: "Load Calc",
+                question: "What is the load calculation for a bank building's general lighting?",
+                answer: "Banks = 1 VA per square foot per Table 220.12. Calculated as continuous load, so multiply by 125% for final sizing."
+            },
+            {
+                category: "Load Calc",
+                question: "How do you calculate parking garage lighting loads?",
+                answer: "Parking garages = 0.25 VA per square foot per Table 220.12. Some of the lowest lighting loads in the NEC."
+            },
+            {
+                category: "Load Calc",
+                question: "What must you include when calculating service load for a mixed-use building?",
+                answer: "Calculate EACH occupancy type separately using Table 220.12, add all loads together. Include sign circuits (1200VA each), outdoor lighting, HVAC, and all other connected loads."
+            },
+
+            // Panel Schedules & Services
+            {
+                category: "General",
+                question: "What is the maximum number of overcurrent devices allowed in a lighting and appliance branch circuit panelboard?",
+                answer: "42 overcurrent devices maximum per panelboard per NEC 408.54. Larger installations require multiple panels."
+            },
+            {
+                category: "General",
+                question: "What is the minimum working clearance in front of a 277/480V electrical panel?",
+                answer: "3.5 feet minimum depth (up to 600V). Height = 6.5 feet minimum. Width = 30 inches or width of equipment (whichever is greater). See Table 110.26(A)(1)."
+            },
+            {
+                category: "General",
+                question: "Where must the main disconnect be located for a dwelling unit service?",
+                answer: "At a readily accessible location nearest to the point of entrance of service conductors per 230.70. Typically exterior or just inside entrance."
+            },
+
+            // Safety & NEC Chapter 1
+            {
+                category: "General",
+                question: "What is the definition of a 'readily accessible' location?",
+                answer: "Capable of being reached quickly without climbing over obstacles or using portable ladders. Not behind locked doors unless accessible to qualified persons."
+            },
+            {
+                category: "General",
+                question: "What does 'accessible (equipment)' mean in NEC terms?",
+                answer: "Admitting close approach but may require removal of a panel or door. Different from 'readily accessible' which requires NO obstacles."
+            },
+            {
+                category: "General",
+                question: "What GFCI protection is required in commercial buildings?",
+                answer: "All 125V, 15A and 20A receptacles in bathrooms, rooftops, kitchens, outdoors, sinks, and other wet locations require GFCI per 210.8(B)."
+            },
+
+            // Advanced Calculations
+            {
+                category: "Load Calc",
+                question: "How do you calculate voltage drop for a three-phase circuit?",
+                answer: "VD = (√3 × K × I × L) / CM, where K = 12.9 for copper, I = current, L = one-way length, CM = circular mils. Note the √3 multiplier for 3-phase."
+            },
+            {
+                category: "Load Calc",
+                question: "A warehouse has 50,000 sq ft, what is the minimum lighting load?",
+                answer: "Low-bay warehouse (<14 ft high) = 0.25 VA/sq ft. 50,000 × 0.25 = 12,500 VA minimum. High-bay (>14 ft) may be different - check Table 220.12."
+            },
+            {
+                category: "NEC 220",
+                question: "How do you apply demand factors to four dwelling units in a multifamily building?",
+                answer: "Calculate each unit's load, then apply Table 220.84 demand factors: 3 units = 43%, 4 units = 40%, 5 units = 38%. Applies to optional calculation method only."
+            },
+
+            // Final Test Prep Tips
+            {
+                category: "General",
+                question: "What are the most important NEC tables to memorize for the exam?",
+                answer: "Table 220.12 (lighting loads), Table 220.55 (ranges), Table 310.16 (ampacity), Table 430.250 (motor FLC), Table 250.66 (grounding). Tab these heavily!"
+            },
+            {
+                category: "General",
+                question: "What calculation mistake do people make most often on the Oregon exam?",
+                answer: "Forgetting to add 125% of the largest motor, not treating commercial lighting as continuous (125%), and forgetting sign circuits. Double-check these every time!"
+            },
+            {
+                category: "General",
+                question: "What's the best way to organize your code book for the exam?",
+                answer: "Use color-coded tabs for: Articles 220, 230, 250, 310, 430, 690. Tab all calculation tables. Highlight formulas. Write common formulas on blank pages in back."
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let isFlipped = false;
+        let stats = { easy: 0, medium: 0, hard: 0 };
+        let activeFilter = 'all';
+        let filteredCards = [...flashcards];
+
+        // Randomized responses for each difficulty level
+        const responses = {
+            easy: [
+                "🔥 You're crushing it!",
+                "⚡ Beast mode activated!",
+                "🎯 Sharp as a tack!",
+                "💪 Making it look easy!",
+                "🚀 You're on fire!",
+                "✨ Code wizard right here!",
+                "🏆 Absolutely nailing this!",
+                "💯 Perfect! Keep rolling!",
+                "⭐ You've got this down!",
+                "🎊 Smooth operator!",
+                "🌟 Exam ready right there!"
+            ],
+            medium: [
+                "👍 Got it down, nice work.",
+                "✓ Solid. Moving forward.",
+                "📝 You're getting there.",
+                "🎓 Building that knowledge.",
+                "✔️ Good grasp on this one.",
+                "📚 Coming together nicely.",
+                "👌 Making progress.",
+                "🔧 Adding to the toolbox.",
+                "📖 Another one logged.",
+                "✅ Locked in, next.",
+                "🔨 Slowly but surely.",
+            ],
+            hard: [
+                "💪 That's okay, you'll get it!",
+                "🎯 Review this one - you've got time!",
+                "📚 Worth another look, no sweat!",
+                "🔄 Flag for review - you're learning!",
+                "✏️ Mark it, come back stronger!",
+                "🧠 Tricky one! Keep pushing!",
+                "📌 Pin this for later - you're doing great!",
+                "🎓 Growth mode - this is how you learn!",
+                "🔍 Revisit this - progress over perfection!",
+                "💡 Challenge accepted - you'll nail it next time!",
+                "🌱 Building mastery takes reps!"
+            ]
+        };
+
+        function getRandomResponse(difficulty) {
+            const responseList = responses[difficulty];
+            return responseList[Math.floor(Math.random() * responseList.length)];
+        }
+
+        function showFeedback(message, difficulty) {
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback-message';
+            feedback.textContent = message;
+            
+            // Add difficulty-specific styling
+            if (difficulty === 'easy') {
+                feedback.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+            } else if (difficulty === 'medium') {
+                feedback.style.background = 'linear-gradient(135deg, #ed8936, #dd6b20)';
+            } else {
+                feedback.style.background = 'linear-gradient(135deg, #f56565, #e53e3e)';
+            }
+            
+            document.body.appendChild(feedback);
+            
+            // Trigger animation
+            setTimeout(() => feedback.classList.add('show'), 10);
+            
+            // Remove after animation
+            setTimeout(() => {
+                feedback.classList.remove('show');
+                setTimeout(() => feedback.remove(), 300);
+            }, 2000);
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function filterCategory(category) {
+            activeFilter = category;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter cards
+            if (category === 'all') {
+                filteredCards = [...flashcards];
+            } else {
+                filteredCards = flashcards.filter(card => card.category === category);
+            }
+
+            // Shuffle and reset
+            filteredCards = shuffleArray(filteredCards);
+            currentCardIndex = 0;
+            stats = { easy: 0, medium: 0, hard: 0 };
+            updateStats();
+            displayCard();
+        }
+
+        function displayCard() {
+            if (currentCardIndex >= filteredCards.length) {
+                showCompletion();
+                return;
+            }
+
+            const card = filteredCards[currentCardIndex];
+            document.getElementById('question').textContent = card.question;
+            document.getElementById('answer').textContent = card.answer;
+            document.getElementById('categoryBadge').textContent = card.category;
+            document.getElementById('categoryBadgeBack').textContent = card.category;
+            document.getElementById('cardCounter').textContent = `${currentCardIndex + 1} / ${filteredCards.length}`;
+            
+            const progress = ((currentCardIndex) / filteredCards.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Reset flip state
+            document.getElementById('flashcard').classList.remove('flipped');
+            isFlipped = false;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('flashcard');
+            card.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function rateCard(difficulty) {
+            if (!isFlipped) {
+                alert('Please flip the card to see the answer first!');
+                return;
+            }
+
+            stats[difficulty]++;
+            updateStats();
+            
+            // Show feedback message
+            const message = getRandomResponse(difficulty);
+            showFeedback(message, difficulty);
+            
+            // Delay card advance to show feedback
+            setTimeout(() => {
+                currentCardIndex++;
+                displayCard();
+            }, 400);
+        }
+
+        function updateStats() {
+            document.getElementById('easyCount').textContent = stats.easy;
+            document.getElementById('mediumCount').textContent = stats.medium;
+            document.getElementById('hardCount').textContent = stats.hard;
+        }
+
+        function showCompletion() {
+            document.querySelector('.card-container').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('show');
+            
+            document.getElementById('finalEasy').textContent = stats.easy;
+            document.getElementById('finalMedium').textContent = stats.medium;
+            document.getElementById('finalHard').textContent = stats.hard;
+        }
+
+        function restartSession() {
+            document.querySelector('.card-container').style.display = 'block';
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('completionScreen').classList.remove('show');
+            
+            filteredCards = shuffleArray(filteredCards);
+            currentCardIndex = 0;
+            stats = { easy: 0, medium: 0, hard: 0 };
+            updateStats();
+            displayCard();
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            filteredCards = shuffleArray(flashcards);
+            displayCard();
+        };
+    </script>
+</body>
+</html>
